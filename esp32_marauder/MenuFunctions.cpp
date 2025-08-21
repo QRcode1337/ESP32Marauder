@@ -1941,6 +1941,14 @@ void MenuFunctions::initializeMenuLists()
   gpsPOIMenu.list = new LinkedList<MenuNode>();
 }
 
+// Helper method to add a back button to a menu
+void MenuFunctions::addBackButton(Menu* menu)
+{
+  this->addNodes(menu, text09, TFTLIGHTGREY, NULL, 0, [this, menu]() {
+    this->changeMenu(menu->parentMenu);
+  });
+}
+
 // Function to build the menus
 void MenuFunctions::RunSetup()
 {
@@ -2040,9 +2048,7 @@ void MenuFunctions::RunSetup()
 
   // Build WiFi Menu
   wifiMenu.parentMenu = &mainMenu; // Main Menu is second menu parent
-  this->addNodes(&wifiMenu, text09, TFTLIGHTGREY, NULL, 0, [this]() {
-    this->changeMenu(wifiMenu.parentMenu);
-  });
+  this->addBackButton(&wifiMenu);
   this->addNodes(&wifiMenu, text_table1[31], TFTYELLOW, NULL, SNIFFERS, [this]() {
     this->changeMenu(&wifiSnifferMenu);
   });
@@ -2063,9 +2069,7 @@ void MenuFunctions::RunSetup()
 
   // Build WiFi scanner Menu
   wifiScannerMenu.parentMenu = &wifiMenu; // Main Menu is second menu parent
-  this->addNodes(&wifiScannerMenu, text09, TFTLIGHTGREY, NULL, 0, [this]() {
-    this->changeMenu(wifiScannerMenu.parentMenu);
-  });
+  this->addBackButton(&wifiScannerMenu);
   this->addNodes(&wifiScannerMenu, "Ping Scan", TFTGREEN, NULL, SCANNERS, [this]() {
     display_obj.clearScreen();
     this->drawStatusBar();
@@ -2109,9 +2113,7 @@ void MenuFunctions::RunSetup()
 
   // Build WiFi sniffer Menu
   wifiSnifferMenu.parentMenu = &wifiMenu; // Main Menu is second menu parent
-  this->addNodes(&wifiSnifferMenu, text09, TFTLIGHTGREY, NULL, 0, [this]() {
-    this->changeMenu(wifiSnifferMenu.parentMenu);
-  });
+  this->addBackButton(&wifiSnifferMenu);
   this->addNodes(&wifiSnifferMenu, text_table1[42], TFTCYAN, NULL, PROBE_SNIFF, [this]() {
     display_obj.clearScreen();
     this->drawStatusBar();
@@ -2880,9 +2882,7 @@ void MenuFunctions::RunSetup()
 
   // Build Bluetooth Menu
   bluetoothMenu.parentMenu = &mainMenu; // Second Menu is third menu parent
-  this->addNodes(&bluetoothMenu, text09, TFTLIGHTGREY, NULL, 0, [this]() {
-    this->changeMenu(bluetoothMenu.parentMenu);
-  });
+  this->addBackButton(&bluetoothMenu);
   this->addNodes(&bluetoothMenu, text_table1[31], TFTYELLOW, NULL, SNIFFERS, [this]() {
     this->changeMenu(&bluetoothSnifferMenu);
   });
@@ -3036,9 +3036,7 @@ void MenuFunctions::RunSetup()
 
   // Device menu
   deviceMenu.parentMenu = &mainMenu;
-  this->addNodes(&deviceMenu, text09, TFTLIGHTGREY, NULL, 0, [this]() {
-    this->changeMenu(deviceMenu.parentMenu);
-  });
+  this->addBackButton(&deviceMenu);
   this->addNodes(&deviceMenu, text_table1[15], TFTORANGE, NULL, UPDATE, [this]() {
     wifi_scan_obj.currentScanMode = OTA_UPDATE;
     this->changeMenu(&whichUpdateMenu);
@@ -3854,7 +3852,7 @@ void MenuFunctions::RunSetup()
 //#endif
 
 // Function to show all MenuNodes in a Menu
-void MenuFunctions::showMenuList(Menu * menu, int layer)
+void MenuFunctions::showMenuList(const Menu * menu, int layer)
 {
   // Iterate through all of the menu nodes in the menu
   for (uint8_t i = 0; i < menu->list->size(); i++)

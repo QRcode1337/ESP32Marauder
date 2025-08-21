@@ -232,7 +232,7 @@ class MenuFunctions
     void addNodes(Menu* menu, String name, uint8_t color, Menu* child, int place, std::function<void()> callable, bool selected = false, String command = "");
     void battery(bool initial = false);
     void battery2(bool initial = false);
-    void showMenuList(Menu* menu, int layer);
+    void showMenuList(const Menu* menu, int layer);
     String callSetting(String key);
     void runBoolSetting(String ley);
     void displaySetting(String key, Menu* menu, int index);
@@ -249,6 +249,9 @@ class MenuFunctions
 
     // Helper method to initialize menu LinkedLists
     void initializeMenuLists();
+    
+    // Helper method to add a back button to a menu
+    void addBackButton(Menu* menu);
 
   public:
     MenuFunctions();
