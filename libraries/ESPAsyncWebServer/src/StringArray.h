@@ -93,10 +93,7 @@ class AlternativeLinkedList {
       size_t i = 0;
       auto it = _root;
       while(it){
-        if (!predicate){
-          i++;
-        }
-        else if (predicate(it->value())) {
+        if (!predicate || predicate(it->value())) {
           i++;
         }
         it = it->next;

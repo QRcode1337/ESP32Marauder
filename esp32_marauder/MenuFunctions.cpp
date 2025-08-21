@@ -679,7 +679,7 @@ void MenuFunctions::buttonNotSelected(int b, int x) {
   #ifdef HAS_FULL_SCREEN
     display_obj.tft.setFreeFont(MENU_FONT);
     display_obj.key[b].drawButton(false, current_menu->list->get(x).name);
-    if ((current_menu->list->get(x).name != text09) && (current_menu->list->get(x).icon != 255))
+    if ((current_menu->list->get(x).name != text09) && (current_menu->list->get(x).icon != NO_ICON))
           display_obj.tft.drawXBitmap(0,
                                       KEY_Y + (b * (KEY_H + KEY_SPACING_Y)) - (ICON_H / 2),
                                       menu_icons[current_menu->list->get(x).icon],
@@ -708,7 +708,7 @@ void MenuFunctions::buttonSelected(int b, int x) {
   #ifdef HAS_FULL_SCREEN
     display_obj.tft.setFreeFont(MENU_FONT);
     display_obj.key[b].drawButton(true, current_menu->list->get(x).name);
-    if ((current_menu->list->get(x).name != text09) && (current_menu->list->get(x).icon != 255))
+    if ((current_menu->list->get(x).name != text09) && (current_menu->list->get(x).icon != NO_ICON))
           display_obj.tft.drawXBitmap(0,
                                       KEY_Y + (b * (KEY_H + KEY_SPACING_Y)) - (ICON_H / 2),
                                       menu_icons[current_menu->list->get(x).icon],
@@ -1869,33 +1869,15 @@ bool MenuFunctions::isKeyPressed(char c)
 }
 #endif
 
-// Function to build the menus
-void MenuFunctions::RunSetup()
+// Helper method to initialize all menu LinkedLists
+void MenuFunctions::initializeMenuLists()
 {
-  extern LinkedList<AccessPoint>* access_points;
-  extern LinkedList<Station>* stations;
-  extern LinkedList<AirTag>* airtags;
-  extern LinkedList<IPAddress>* ipList;
-  extern LinkedList<ProbeReqSsid>* probe_req_ssids;
-  extern LinkedList<ssid>* ssids;
-
-  this->disable_touch = false;
-  
-  #ifdef HAS_ILI9341
-    this->initLVGL();
-  #endif
-
-  #ifdef MARAUDER_CARDPUTER
-    M5CardputerKeyboard.begin();
-  #endif
-   
-  // root menu stuff
-  mainMenu.list = new LinkedList<MenuNode>(); // Get list in first menu ready
-
   // Main menu stuff
-  wifiMenu.list = new LinkedList<MenuNode>(); // Get list in second menu ready
-  bluetoothMenu.list = new LinkedList<MenuNode>(); // Get list in third menu ready
+  mainMenu.list = new LinkedList<MenuNode>();
+  wifiMenu.list = new LinkedList<MenuNode>();
+  bluetoothMenu.list = new LinkedList<MenuNode>();
   deviceMenu.list = new LinkedList<MenuNode>();
+  
   #ifdef HAS_GPS
     if (gps_obj.getGpsModuleStatus()) {
       gpsInfoMenu.list = new LinkedList<MenuNode>();
@@ -1928,23 +1910,15 @@ void MenuFunctions::RunSetup()
   #ifdef HAS_BT
     airtagMenu.list = new LinkedList<MenuNode>();
   #endif
-  //#ifndef HAS_ILI9341
-    wifiStationMenu.list = new LinkedList<MenuNode>();
-  //#endif
+  wifiStationMenu.list = new LinkedList<MenuNode>();
   selectProbeSSIDsMenu.list = new LinkedList<MenuNode>();
 
   // WiFi HTML menu stuff
   htmlMenu.list = new LinkedList<MenuNode>();
-  //#if (!defined(HAS_ILI9341) && defined(HAS_BUTTONS))
-    miniKbMenu.list = new LinkedList<MenuNode>();
-  //#endif
-  //#ifndef HAS_ILI9341
-  //  #ifdef HAS_BUTTONS
-      #ifdef HAS_SD
-        sdDeleteMenu.list = new LinkedList<MenuNode>();
-      #endif
-  //  #endif
-  //#endif
+  miniKbMenu.list = new LinkedList<MenuNode>();
+  #ifdef HAS_SD
+    sdDeleteMenu.list = new LinkedList<MenuNode>();
+  #endif
 
   // Bluetooth menu stuff
   bluetoothSnifferMenu.list = new LinkedList<MenuNode>();
@@ -1955,7 +1929,6 @@ void MenuFunctions::RunSetup()
   clearSSIDsMenu.list = new LinkedList<MenuNode>();
   clearAPsMenu.list = new LinkedList<MenuNode>();
   saveFileMenu.list = new LinkedList<MenuNode>();
-
   saveSSIDsMenu.list = new LinkedList<MenuNode>();
   loadSSIDsMenu.list = new LinkedList<MenuNode>();
   saveAPsMenu.list = new LinkedList<MenuNode>();
@@ -1965,8 +1938,39 @@ void MenuFunctions::RunSetup()
 
   evilPortalMenu.list = new LinkedList<MenuNode>();
   ssidsMenu.list = new LinkedList<MenuNode>();
-
   gpsPOIMenu.list = new LinkedList<MenuNode>();
+}
+
+// Helper method to add a back button to a menu
+void MenuFunctions::addBackButton(Menu* menu)
+{
+  this->addNodes(menu, text09, TFTLIGHTGREY, NULL, 0, [this, menu]() {
+    this->changeMenu(menu->parentMenu);
+  });
+}
+
+// Function to build the menus
+void MenuFunctions::RunSetup()
+{
+  extern LinkedList<AccessPoint>* access_points;
+  extern LinkedList<Station>* stations;
+  extern LinkedList<AirTag>* airtags;
+  extern LinkedList<IPAddress>* ipList;
+  extern LinkedList<ProbeReqSsid>* probe_req_ssids;
+  extern LinkedList<ssid>* ssids;
+
+  this->disable_touch = false;
+  
+  #ifdef HAS_ILI9341
+    this->initLVGL();
+  #endif
+
+  #ifdef MARAUDER_CARDPUTER
+    M5CardputerKeyboard.begin();
+  #endif
+   
+  // Initialize all menu LinkedLists
+  this->initializeMenuLists();
 
   // Work menu names
   mainMenu.name = text_table1[6];
@@ -2044,9 +2048,7 @@ void MenuFunctions::RunSetup()
 
   // Build WiFi Menu
   wifiMenu.parentMenu = &mainMenu; // Main Menu is second menu parent
-  this->addNodes(&wifiMenu, text09, TFTLIGHTGREY, NULL, 0, [this]() {
-    this->changeMenu(wifiMenu.parentMenu);
-  });
+  this->addBackButton(&wifiMenu);
   this->addNodes(&wifiMenu, text_table1[31], TFTYELLOW, NULL, SNIFFERS, [this]() {
     this->changeMenu(&wifiSnifferMenu);
   });
@@ -2067,9 +2069,7 @@ void MenuFunctions::RunSetup()
 
   // Build WiFi scanner Menu
   wifiScannerMenu.parentMenu = &wifiMenu; // Main Menu is second menu parent
-  this->addNodes(&wifiScannerMenu, text09, TFTLIGHTGREY, NULL, 0, [this]() {
-    this->changeMenu(wifiScannerMenu.parentMenu);
-  });
+  this->addBackButton(&wifiScannerMenu);
   this->addNodes(&wifiScannerMenu, "Ping Scan", TFTGREEN, NULL, SCANNERS, [this]() {
     display_obj.clearScreen();
     this->drawStatusBar();
@@ -2090,7 +2090,7 @@ void MenuFunctions::RunSetup()
     // Populate the menu with buttons
     for (int i = 0; i < ipList->size(); i++) {
       // This is the menu node
-      this->addNodes(&wifiIPMenu, ipList->get(i).toString(), TFTBLUE, NULL, 255, [this, i](){
+      this->addNodes(&wifiIPMenu, ipList->get(i).toString(), TFTBLUE, NULL, NO_ICON, [this, i](){
         Serial.println("Selected: " + ipList->get(i).toString());
         wifi_scan_obj.current_scan_ip = ipList->get(i);
         display_obj.clearScreen();
@@ -2113,9 +2113,7 @@ void MenuFunctions::RunSetup()
 
   // Build WiFi sniffer Menu
   wifiSnifferMenu.parentMenu = &wifiMenu; // Main Menu is second menu parent
-  this->addNodes(&wifiSnifferMenu, text09, TFTLIGHTGREY, NULL, 0, [this]() {
-    this->changeMenu(wifiSnifferMenu.parentMenu);
-  });
+  this->addBackButton(&wifiSnifferMenu);
   this->addNodes(&wifiSnifferMenu, text_table1[42], TFTCYAN, NULL, PROBE_SNIFF, [this]() {
     display_obj.clearScreen();
     this->drawStatusBar();
@@ -2292,7 +2290,7 @@ void MenuFunctions::RunSetup()
     // Get AP list ready
     for (int i = 0; i < access_points->size(); i++) {
       // This is the menu node
-      this->addNodes(&wifiAPMenu, access_points->get(i).essid, TFTCYAN, NULL, 255, [this, i](){
+      this->addNodes(&wifiAPMenu, access_points->get(i).essid, TFTCYAN, NULL, NO_ICON, [this, i](){
         if (evil_portal_obj.setAP(access_points->get(i).essid)) {
           AccessPoint new_ap = access_points->get(i);
           new_ap.selected = true;
@@ -2884,9 +2882,7 @@ void MenuFunctions::RunSetup()
 
   // Build Bluetooth Menu
   bluetoothMenu.parentMenu = &mainMenu; // Second Menu is third menu parent
-  this->addNodes(&bluetoothMenu, text09, TFTLIGHTGREY, NULL, 0, [this]() {
-    this->changeMenu(bluetoothMenu.parentMenu);
-  });
+  this->addBackButton(&bluetoothMenu);
   this->addNodes(&bluetoothMenu, text_table1[31], TFTYELLOW, NULL, SNIFFERS, [this]() {
     this->changeMenu(&bluetoothSnifferMenu);
   });
@@ -3040,9 +3036,7 @@ void MenuFunctions::RunSetup()
 
   // Device menu
   deviceMenu.parentMenu = &mainMenu;
-  this->addNodes(&deviceMenu, text09, TFTLIGHTGREY, NULL, 0, [this]() {
-    this->changeMenu(deviceMenu.parentMenu);
-  });
+  this->addBackButton(&deviceMenu);
   this->addNodes(&deviceMenu, text_table1[15], TFTORANGE, NULL, UPDATE, [this]() {
     wifi_scan_obj.currentScanMode = OTA_UPDATE;
     this->changeMenu(&whichUpdateMenu);
@@ -3858,7 +3852,7 @@ void MenuFunctions::RunSetup()
 //#endif
 
 // Function to show all MenuNodes in a Menu
-void MenuFunctions::showMenuList(Menu * menu, int layer)
+void MenuFunctions::showMenuList(const Menu * menu, int layer)
 {
   // Iterate through all of the menu nodes in the menu
   for (uint8_t i = 0; i < menu->list->size(); i++)
@@ -4121,7 +4115,7 @@ void MenuFunctions::displayCurrentMenu(int start_index)
         //  display_obj.key[i].drawButton(false, current_menu->list->get(i).name); 
         //#endif
         
-        if ((current_menu->list->get(i).name != text09) && (current_menu->list->get(i).icon != 255))
+        if ((current_menu->list->get(i).name != text09) && (current_menu->list->get(i).icon != NO_ICON))
           display_obj.tft.drawXBitmap(0,
                                       KEY_Y + (i - start_index) * (KEY_H + KEY_SPACING_Y) - (ICON_H / 2),
                                       menu_icons[current_menu->list->get(i).icon],

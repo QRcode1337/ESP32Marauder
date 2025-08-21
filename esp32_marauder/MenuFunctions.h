@@ -92,6 +92,7 @@ extern Settings settings_obj;
 #define MULTISSID_SNIFF 37 // Use blanks icon
 #define JOINED 38
 #define FORCE 39
+#define NO_ICON 255
 
 PROGMEM void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
 PROGMEM bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data);
@@ -232,7 +233,7 @@ class MenuFunctions
     void addNodes(Menu* menu, String name, uint8_t color, Menu* child, int place, std::function<void()> callable, bool selected = false, String command = "");
     void battery(bool initial = false);
     void battery2(bool initial = false);
-    void showMenuList(Menu* menu, int layer);
+    void showMenuList(const Menu* menu, int layer);
     String callSetting(String key);
     void runBoolSetting(String ley);
     void displaySetting(String key, Menu* menu, int index);
@@ -246,6 +247,12 @@ class MenuFunctions
       Keyboard_Class M5CardputerKeyboard = Keyboard_Class();
       bool isKeyPressed(char c);
     #endif
+
+    // Helper method to initialize menu LinkedLists
+    void initializeMenuLists();
+    
+    // Helper method to add a back button to a menu
+    void addBackButton(Menu* menu);
 
   public:
     MenuFunctions();
