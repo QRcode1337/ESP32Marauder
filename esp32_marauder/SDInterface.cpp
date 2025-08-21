@@ -47,6 +47,12 @@ bool SDInterface::initSD() {
       #else
         this->spiExt = new SPIClass(FSPI);
       #endif
+      
+      if (!this->spiExt) {
+        Serial.println("Failed to allocate SPI class");
+        this->supported = false;
+        return false;
+      }
       Serial.println("Using external SPI configuration...");
       this->spiExt->begin(SPI_SCK, SPI_MISO, SPI_MOSI, SD_CS);
       if (!SD.begin(SD_CS, *(this->spiExt))) {
@@ -89,6 +95,12 @@ bool SDInterface::initSD() {
       }
 
       this->sd_files = new LinkedList<String>();
+      
+      if (!this->sd_files) {
+        Serial.println("Failed to allocate SD files list");
+        this->supported = false;
+        return false;
+      }
 
       this->sd_files->add("Back");
     

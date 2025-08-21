@@ -679,7 +679,7 @@ void MenuFunctions::buttonNotSelected(int b, int x) {
   #ifdef HAS_FULL_SCREEN
     display_obj.tft.setFreeFont(MENU_FONT);
     display_obj.key[b].drawButton(false, current_menu->list->get(x).name);
-    if ((current_menu->list->get(x).name != text09) && (current_menu->list->get(x).icon != 255))
+    if ((current_menu->list->get(x).name != text09) && (current_menu->list->get(x).icon != NO_ICON))
           display_obj.tft.drawXBitmap(0,
                                       KEY_Y + (b * (KEY_H + KEY_SPACING_Y)) - (ICON_H / 2),
                                       menu_icons[current_menu->list->get(x).icon],
@@ -708,7 +708,7 @@ void MenuFunctions::buttonSelected(int b, int x) {
   #ifdef HAS_FULL_SCREEN
     display_obj.tft.setFreeFont(MENU_FONT);
     display_obj.key[b].drawButton(true, current_menu->list->get(x).name);
-    if ((current_menu->list->get(x).name != text09) && (current_menu->list->get(x).icon != 255))
+    if ((current_menu->list->get(x).name != text09) && (current_menu->list->get(x).icon != NO_ICON))
           display_obj.tft.drawXBitmap(0,
                                       KEY_Y + (b * (KEY_H + KEY_SPACING_Y)) - (ICON_H / 2),
                                       menu_icons[current_menu->list->get(x).icon],
@@ -2090,7 +2090,7 @@ void MenuFunctions::RunSetup()
     // Populate the menu with buttons
     for (int i = 0; i < ipList->size(); i++) {
       // This is the menu node
-      this->addNodes(&wifiIPMenu, ipList->get(i).toString(), TFTBLUE, NULL, 255, [this, i](){
+      this->addNodes(&wifiIPMenu, ipList->get(i).toString(), TFTBLUE, NULL, NO_ICON, [this, i](){
         Serial.println("Selected: " + ipList->get(i).toString());
         wifi_scan_obj.current_scan_ip = ipList->get(i);
         display_obj.clearScreen();
@@ -2290,7 +2290,7 @@ void MenuFunctions::RunSetup()
     // Get AP list ready
     for (int i = 0; i < access_points->size(); i++) {
       // This is the menu node
-      this->addNodes(&wifiAPMenu, access_points->get(i).essid, TFTCYAN, NULL, 255, [this, i](){
+      this->addNodes(&wifiAPMenu, access_points->get(i).essid, TFTCYAN, NULL, NO_ICON, [this, i](){
         if (evil_portal_obj.setAP(access_points->get(i).essid)) {
           AccessPoint new_ap = access_points->get(i);
           new_ap.selected = true;
@@ -4115,7 +4115,7 @@ void MenuFunctions::displayCurrentMenu(int start_index)
         //  display_obj.key[i].drawButton(false, current_menu->list->get(i).name); 
         //#endif
         
-        if ((current_menu->list->get(i).name != text09) && (current_menu->list->get(i).icon != 255))
+        if ((current_menu->list->get(i).name != text09) && (current_menu->list->get(i).icon != NO_ICON))
           display_obj.tft.drawXBitmap(0,
                                       KEY_Y + (i - start_index) * (KEY_H + KEY_SPACING_Y) - (ICON_H / 2),
                                       menu_icons[current_menu->list->get(i).icon],
