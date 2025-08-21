@@ -1869,33 +1869,15 @@ bool MenuFunctions::isKeyPressed(char c)
 }
 #endif
 
-// Function to build the menus
-void MenuFunctions::RunSetup()
+// Helper method to initialize all menu LinkedLists
+void MenuFunctions::initializeMenuLists()
 {
-  extern LinkedList<AccessPoint>* access_points;
-  extern LinkedList<Station>* stations;
-  extern LinkedList<AirTag>* airtags;
-  extern LinkedList<IPAddress>* ipList;
-  extern LinkedList<ProbeReqSsid>* probe_req_ssids;
-  extern LinkedList<ssid>* ssids;
-
-  this->disable_touch = false;
-  
-  #ifdef HAS_ILI9341
-    this->initLVGL();
-  #endif
-
-  #ifdef MARAUDER_CARDPUTER
-    M5CardputerKeyboard.begin();
-  #endif
-   
-  // root menu stuff
-  mainMenu.list = new LinkedList<MenuNode>(); // Get list in first menu ready
-
   // Main menu stuff
-  wifiMenu.list = new LinkedList<MenuNode>(); // Get list in second menu ready
-  bluetoothMenu.list = new LinkedList<MenuNode>(); // Get list in third menu ready
+  mainMenu.list = new LinkedList<MenuNode>();
+  wifiMenu.list = new LinkedList<MenuNode>();
+  bluetoothMenu.list = new LinkedList<MenuNode>();
   deviceMenu.list = new LinkedList<MenuNode>();
+  
   #ifdef HAS_GPS
     if (gps_obj.getGpsModuleStatus()) {
       gpsInfoMenu.list = new LinkedList<MenuNode>();
@@ -1928,23 +1910,15 @@ void MenuFunctions::RunSetup()
   #ifdef HAS_BT
     airtagMenu.list = new LinkedList<MenuNode>();
   #endif
-  //#ifndef HAS_ILI9341
-    wifiStationMenu.list = new LinkedList<MenuNode>();
-  //#endif
+  wifiStationMenu.list = new LinkedList<MenuNode>();
   selectProbeSSIDsMenu.list = new LinkedList<MenuNode>();
 
   // WiFi HTML menu stuff
   htmlMenu.list = new LinkedList<MenuNode>();
-  //#if (!defined(HAS_ILI9341) && defined(HAS_BUTTONS))
-    miniKbMenu.list = new LinkedList<MenuNode>();
-  //#endif
-  //#ifndef HAS_ILI9341
-  //  #ifdef HAS_BUTTONS
-      #ifdef HAS_SD
-        sdDeleteMenu.list = new LinkedList<MenuNode>();
-      #endif
-  //  #endif
-  //#endif
+  miniKbMenu.list = new LinkedList<MenuNode>();
+  #ifdef HAS_SD
+    sdDeleteMenu.list = new LinkedList<MenuNode>();
+  #endif
 
   // Bluetooth menu stuff
   bluetoothSnifferMenu.list = new LinkedList<MenuNode>();
@@ -1955,7 +1929,6 @@ void MenuFunctions::RunSetup()
   clearSSIDsMenu.list = new LinkedList<MenuNode>();
   clearAPsMenu.list = new LinkedList<MenuNode>();
   saveFileMenu.list = new LinkedList<MenuNode>();
-
   saveSSIDsMenu.list = new LinkedList<MenuNode>();
   loadSSIDsMenu.list = new LinkedList<MenuNode>();
   saveAPsMenu.list = new LinkedList<MenuNode>();
@@ -1965,8 +1938,31 @@ void MenuFunctions::RunSetup()
 
   evilPortalMenu.list = new LinkedList<MenuNode>();
   ssidsMenu.list = new LinkedList<MenuNode>();
-
   gpsPOIMenu.list = new LinkedList<MenuNode>();
+}
+
+// Function to build the menus
+void MenuFunctions::RunSetup()
+{
+  extern LinkedList<AccessPoint>* access_points;
+  extern LinkedList<Station>* stations;
+  extern LinkedList<AirTag>* airtags;
+  extern LinkedList<IPAddress>* ipList;
+  extern LinkedList<ProbeReqSsid>* probe_req_ssids;
+  extern LinkedList<ssid>* ssids;
+
+  this->disable_touch = false;
+  
+  #ifdef HAS_ILI9341
+    this->initLVGL();
+  #endif
+
+  #ifdef MARAUDER_CARDPUTER
+    M5CardputerKeyboard.begin();
+  #endif
+   
+  // Initialize all menu LinkedLists
+  this->initializeMenuLists();
 
   // Work menu names
   mainMenu.name = text_table1[6];

@@ -247,6 +247,9 @@ class MenuFunctions
       bool isKeyPressed(char c);
     #endif
 
+    // Helper method to initialize menu LinkedLists
+    void initializeMenuLists();
+
   public:
     MenuFunctions();
 
